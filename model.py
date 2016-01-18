@@ -68,12 +68,13 @@ class Population:
             if (s == 1):
                 # Food required is i.genes[2]
                 if (self.food_remaining >= i.genes[2]):
-                    self.food_remaining = self.food_remaining - i.genes[2]
-                    i.food_stored = i.food_stored + i.genes[2]
+                    self.food_remaining = self.food_remaining - math.abs(i.genes[2])
+                    i.food_stored = i.food_stored + math.abs(i.genes[2])
                     # Move food across.
                     new_genes = i.genes
                     for cs in range(0, len(new_genes)):
                         new_genes[cs] = new_genes[cs] + (random.random() / 10)-0.05
+
                     ss = Individual(new_genes)
                     self.population.append(ss)
                 else:
