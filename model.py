@@ -11,7 +11,7 @@ import random
 def f(maxi, spread, value):
     mean = maxi/2
     coeff = 1/(spread * math.sqrt(2*math.pi))
-    expv = -((value - maxi)**2)/(2*spread*spread)
+    expv = -((value - mean)**2)/(2*spread*spread)
     return coeff * math.exp(expv)
 
 
@@ -20,6 +20,7 @@ class Individual:
     genes = []
     max_age = 0
     alive = 1
+    food_stored = 0
     def __init__(self, genes):
         self.genes = genes
         self.max_age_c()
@@ -52,22 +53,36 @@ class Individual:
 class Population:
     population = []
     max_population = 500000
-    def __init__(self, population, max_population):
+    food_remaining = 0
+    def __init__(self, population, max_population, food):
         self.population = population
         self.max_population = max_population
+        self.food_remaining = food
     def age_multiplier(self):
         pop_size = len(self.population)
-        return 1 - (math.pow(pop_size, 3) / math.pow(self.max_population,3))
+        #return 1 - (math.pow(pop_size, 3) / math.pow(self.max_population,3))
+        return 1
     def pop_age(self, num_years):
         for i in self.population:
             s = i.reproduce(self.age_multiplier())
             if (s == 1):
-                new_genes = i.genes
-                for cs in range(0, len(new_genes)):
-                    new_genes[cs] = new_genes[cs] + random.random() - 0.5
-                ss = Individual(new_genes)
-                self.population.append(ss)
+                # Food required is i.genes[2]
+                if (self.food_remaining >= i.genes[2]):
+                    self.food_remaining = self.food_remaining - i.genes[2]
+                    i.food_stored = i.food_stored + i.genes[2]
+                    # Move food across.
+                    new_genes = i.genes
+                    for cs in range(0, len(new_genes)):
+                        new_genes[cs] = new_genes[cs] + (random.random() / 10)-0.05
+                    ss = Individual(new_genes)
+                    self.population.append(ss)
+                else:
+                    i.alive = 0
+
+
+
             if (i.alive == 0):
+                self.food_remaining = self.food_remaining + i.food_stored
                 self.population.remove(i)
         return len(self.population)
     def average_genes(self):
@@ -87,17 +102,18 @@ class Population:
 
 
 pop_members = []
-for i in range(0, 100):
+for i in range(0, 800):
     # Create founder population
-    c = Individual([random.randint(0, 10), random.randint(0, 10)])
+    c = Individual([random.randint(0, 10), random.randint(0, 10), random.randint(0, 100)])
     pop_members.append(c)
 
-pop = Population(pop_members, 5000)
+pop = Population(pop_members, 5000, 10000)
 out = ""
 for i in range(0, 10000):
     l = pop.pop_age(1)
     ge = pop.average_genes()
-    out = out + str(i) + ", " + str(l) + ", " + str(ge[0]) + ", " + str(ge[1]) + "\n"
+    out = out + str(i) + ", " + str(l) + ", " + str(ge[0]) + ", " + str(ge[1]) + ", " + str(pop.food_remaining) + ", " + str(ge[2]) + "\n"
+    print str(i) + ": " + str(l)
 
 q = open('test_stage.csv', 'r+')
 q.write(out)
