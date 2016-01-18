@@ -67,9 +67,9 @@ class Population:
             s = i.reproduce(self.age_multiplier())
             if (s == 1):
                 # Food required is i.genes[2]
-                if (self.food_remaining >= i.genes[2]):
-                    self.food_remaining = self.food_remaining - math.abs(i.genes[2])
-                    i.food_stored = i.food_stored + math.abs(i.genes[2])
+                if (self.food_remaining >= abs(i.genes[2])):
+                    self.food_remaining = self.food_remaining - abs(i.genes[2])
+                    i.food_stored = i.food_stored + abs(i.genes[2])
                     # Move food across.
                     new_genes = i.genes
                     for cs in range(0, len(new_genes)):
@@ -110,7 +110,7 @@ for i in range(0, 800):
 
 pop = Population(pop_members, 5000, 10000)
 out = ""
-for i in range(0, 10000):
+for i in range(0, 4000):
     l = pop.pop_age(1)
     ge = pop.average_genes()
     out = out + str(i) + ", " + str(l) + ", " + str(ge[0]) + ", " + str(ge[1]) + ", " + str(pop.food_remaining) + ", " + str(ge[2]) + "\n"
